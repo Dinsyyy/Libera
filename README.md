@@ -49,7 +49,7 @@ Ikuti langkah-langkah berikut untuk menjalankan aplikasi ini di lingkungan lokal
 
 ```bash
 git clone https://github.com/Dinsyyy/Libera.git
-cd libera-app
+cd Libera
 ```
 
 ### 2. Setup Backend (API)
