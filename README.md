@@ -48,7 +48,7 @@ Ikuti langkah-langkah berikut untuk menjalankan aplikasi ini di lingkungan lokal
 ### 1. Clone Repositori
 
 ```bash
-git clone git clone https://github.com/Dinsyyy/Libera.git
+git clone https://github.com/Dinsyyy/Libera.git
 cd libera-app
 ```
 
