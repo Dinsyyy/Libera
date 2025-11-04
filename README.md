@@ -14,26 +14,26 @@ Aplikasi ini memiliki dua peran utama: **Pengguna** dan **Admin**, dengan fitur 
 
 ### 👤 Untuk Pengguna
 
-*   **🔐 Otentikasi Aman:** Sistem registrasi dan login yang aman untuk para pengguna.
-*   **📖 Katalog Buku:** Jelajahi koleksi buku yang tersedia dengan mudah.
-*   **🔍 Detail Buku:** Lihat informasi lengkap setiap buku, termasuk sinopsis dan ketersediaan.
-*   **🚀 Proses Peminjaman:** Pinjam buku favoritmu hanya dengan beberapa klik.
-*   **📊 Dasbor Pengguna:** Pantau riwayat peminjaman dan status buku yang sedang dipinjam.
+- **🔐 Otentikasi Aman:** Sistem registrasi dan login yang aman untuk para pengguna.
+- **📖 Katalog Buku:** Jelajahi koleksi buku yang tersedia dengan mudah.
+- **🔍 Detail Buku:** Lihat informasi lengkap setiap buku, termasuk sinopsis dan ketersediaan.
+- **🚀 Proses Peminjaman:** Pinjam buku favoritmu hanya dengan beberapa klik.
+- **📊 Dasbor Pengguna:** Pantau riwayat peminjaman dan status buku yang sedang dipinjam.
 
 ### 👑 Untuk Admin
 
-*   **📈 Dasbor Analitik:** Dapatkan ringkasan statistik perpustakaan, seperti jumlah buku, pengguna, dan transaksi.
-*   **📚 Manajemen Buku (CRUD):** Tambah, lihat, edit, dan hapus data buku dengan antarmuka yang intuitif.
-*   **👥 Manajemen Pengguna:** Kelola data pengguna yang terdaftar di sistem.
-*   **🔄 Manajemen Transaksi:** Pantau dan kelola semua transaksi peminjaman yang terjadi.
-*   **⚙️ Pengaturan Profil:** Kelola profil admin dengan mudah.
+- **📈 Dasbor Analitik:** Dapatkan ringkasan statistik perpustakaan, seperti jumlah buku, pengguna, dan transaksi.
+- **📚 Manajemen Buku (CRUD):** Tambah, lihat, edit, dan hapus data buku dengan antarmuka yang intuitif.
+- **👥 Manajemen Pengguna:** Kelola data pengguna yang terdaftar di sistem.
+- **🔄 Manajemen Transaksi:** Pantau dan kelola semua transaksi peminjaman yang terjadi.
+- **⚙️ Pengaturan Profil:** Kelola profil admin dengan mudah.
 
 ## 🛠️ Tumpukan Teknologi
 
-*   **Backend:** Laravel 11
-*   **Frontend:** React 19 (dijalankan dengan Vite)
-*   **Database:** SQLite (untuk kemudahan instalasi)
-*   **Styling:** CSS Murni
+- **Backend:** Laravel 11
+- **Frontend:** React 19 (dijalankan dengan Vite)
+- **Database:** SQLite (untuk kemudahan instalasi)
+- **Styling:** CSS Murni
 
 ## 🚀 Panduan Instalasi
 
@@ -41,14 +41,14 @@ Ikuti langkah-langkah berikut untuk menjalankan aplikasi ini di lingkungan lokal
 
 ### Prerequisites
 
-*   PHP 8.2+
-*   Composer
-*   Node.js & NPM
+- PHP 8.2+
+- Composer
+- Node.js & NPM
 
 ### 1. Clone Repositori
 
 ```bash
-git clone https://github.com/nama-pengguna-anda/libera-app.git
+git clone git clone https://github.com/Dinsyyy/Libera.git
 cd libera-app
 ```
 
@@ -76,6 +76,7 @@ php artisan migrate --seed
 # Jalankan server backend
 php artisan serve
 ```
+
 Server API Anda sekarang berjalan di `http://127.0.0.1:8000`.
 
 ### 3. Setup Frontend (Client)
@@ -92,8 +93,5 @@ npm install
 # Jalankan server pengembangan frontend
 npm run dev
 ```
+
 Aplikasi frontend Anda sekarang dapat diakses di `http://localhost:5173`.
-
-## 📄 Lisensi
-
-Proyek ini dilisensikan di bawah [Lisensi MIT](LICENSE).
