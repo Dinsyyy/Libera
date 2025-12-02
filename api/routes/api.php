@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\AdminTransactionController;
 use App\Http\Controllers\Api\Admin\AdminUserController;
+use App\Http\Controllers\Api\User\UserProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,8 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Rute untuk Buku (yang baru kita tambahkan)
     Route::get('/books', [BookController::class, 'index']);      // Daftar buku
     Route::get('/books/{id}', [BookController::class, 'show']);   // Detail buku
-
-    // Rute untuk Transaksi (Peminjaman)
+    Route::put('/user/profile', [UserProfileController::class, 'update']);
 
 // POST /api/books/{id}/borrow (Aksi "Pinjam Buku Ini")
 Route::post('/books/{id}/borrow', [TransactionController::class, 'borrowBook']);
@@ -45,6 +45,8 @@ Route::post('/books/{id}/borrow', [TransactionController::class, 'borrowBook']);
 // GET /api/my-transactions (Untuk Dashboard User "Buku yang Sedang Anda Pinjam")
 Route::get('/my-transactions', [TransactionController::class, 'myTransactions']);
 
+Route::get('/user/notifications', [App\Http\Controllers\Api\User\NotificationController::class, 'index']);
+Route::post('/user/notifications/read', [App\Http\Controllers\Api\User\NotificationController::class, 'markAsRead']);
 // == (3) ROUTE KHUSUS ADMIN ==
 // Grup ini dilindungi oleh DUA middleware:
 // 1. 'auth:sanctum' : Harus sudah login
@@ -78,4 +80,14 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
 
 });
 
+    // POST /api/admin/borrow (Catat Peminjaman)
+    Route::post('/borrow', [App\Http\Controllers\Api\Admin\AdminTransactionController::class, 'store']);
+    
+    // POST /api/admin/return (Catat Pengembalian)
+    Route::post('/return', [App\Http\Controllers\Api\Admin\AdminTransactionController::class, 'returnBook']);
+    
+    // GET /api/admin/active-loans (List buku yang sedang dipinjam)
+    Route::get('/active-loans', [App\Http\Controllers\Api\Admin\AdminTransactionController::class, 'activeLoans']);
+
+    Route::put('/profile', [App\Http\Controllers\Api\Admin\AdminProfileController::class, 'update']);
 });

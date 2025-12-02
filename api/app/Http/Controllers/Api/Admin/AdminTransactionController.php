@@ -3,78 +3,109 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\BorrowTransaction;
-use App\Models\Book; // <-- Import Book
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;   // <-- Import DB
-use Carbon\Carbon; // <-- Import Carbon
+use App\Models\Transaction;
+use App\Models\Book;
+use App\Models\User;
+use App\Notifications\LibraryNotification;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AdminTransactionController extends Controller
 {
-    /**
-     * Menampilkan daftar SEMUA transaksi yang sedang aktif (status 'dipinjam').
-     * GET /api/admin/transactions
-     */
-    public function index(): JsonResponse
+    // 1. API untuk mencatat PEMINJAMAN (Admin meminjamkan buku ke user)
+    public function store(Request $request)
     {
-        // Ambil semua transaksi yang masih 'dipinjam'
-        // 'with' akan mengambil data user dan data buku yang terkait
-        $activeTransactions = BorrowTransaction::where('status', 'dipinjam')
-                                ->with(['user', 'book']) // Ambil data user & buku
-                                ->latest()
-                                ->get();
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'book_id' => 'required|exists:books,id',
+            'due_date' => 'required|date|after:today',
+        ]);
 
-        return response()->json($activeTransactions, 200);
+        $book = Book::findOrFail($request->book_id);
+
+        if ($book->stock < 1) {
+            return response()->json(['message' => 'Stok buku habis.'], 400);
+        }
+
+        // Gunakan transaksi database agar aman
+        DB::beginTransaction();
+        try {
+            // Kurangi stok
+            $book->decrement('stock');
+
+            // Buat data transaksi
+            $transaction = Transaction::create([
+                'user_id' => $request->user_id,
+                'book_id' => $request->book_id,
+                'borrow_date' => Carbon::now(),
+                'due_date' => $request->due_date,
+                'status' => 'dipinjam',
+            ]);
+
+            $user = User::find($request->user_id);
+            $user->notify(new LibraryNotification(
+                "Buku '{$book->title}' berhasil dipinjam. Harap kembalikan sebelum " . $request->due_date
+            ));
+
+            DB::commit();
+            return response()->json([
+                'message' => 'Peminjaman berhasil dicatat.',
+                'data' => $transaction
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Gagal mencatat transaksi.'], 500);
+        }
     }
 
-    /**
-     * Mengembalikan buku (hanya bisa dilakukan oleh Admin).
-     * POST /api/admin/transactions/{id}/return
-     */
-    public function returnBook(string $id): JsonResponse
+    // 2. API untuk mencatat PENGEMBALIAN
+    public function returnBook(Request $request)
     {
-        try {
-            $transaction = DB::transaction(function () use ($id) {
-                // Cari transaksi berdasarkan ID, dan 'lock'
-                $transaction = BorrowTransaction::where('id', $id)
-                                    ->lockForUpdate()
-                                    ->firstOrFail();
+        $request->validate([
+            'transaction_id' => 'required|exists:transactions,id',
+        ]);
 
-                // 1. Cek apakah buku sudah dikembalikan
-                if ($transaction->status === 'dikembalikan') {
-                    throw new \Exception('Buku ini sudah dikembalikan.');
-                }
+        $transaction = Transaction::findOrFail($request->transaction_id);
 
-                // 2. Update status transaksi
-                $transaction->status = 'dikembalikan';
-                $transaction->return_date = Carbon::now()->toDateString();
-                $transaction->save();
-
-                // 3. Tambah stok buku kembali
-                // 'lockForUpdate' di sini untuk keamanan data
-                $book = Book::where('id', $transaction->book_id)
-                            ->lockForUpdate()
-                            ->firstOrFail();
-                
-                $book->stock = $book->stock + 1;
-                $book->save();
-
-                return $transaction;
-            });
-
-            // 4. Beri respons sukses
-            return response()->json([
-                'message' => 'Buku berhasil dikembalikan.',
-                'transaction' => $transaction
-            ], 200); // 200 = OK
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            // Jika transaksi tidak ditemukan
-            return response()->json(['message' => 'Transaksi tidak ditemukan.'], 404);
-        } catch (\Exception $e) {
-            // Tangkap error lain (misal: sudah dikembalikan)
-            return response()->json(['message' => $e->getMessage()], 422);
+        if ($transaction->status !== 'dipinjam') {
+            return response()->json(['message' => 'Buku ini sudah dikembalikan sebelumnya.'], 400);
         }
+
+        DB::beginTransaction();
+        try {
+            // Update status transaksi
+            $transaction->update([
+                'return_date' => Carbon::now(),
+                'status' => 'dikembalikan',
+            ]);
+
+            $transaction->user->notify(new LibraryNotification(
+                "Terima kasih! Buku '{$transaction->book->title}' telah berhasil dikembalikan."
+            ));
+
+            // Kembalikan stok buku
+            $transaction->book->increment('stock');
+
+            DB::commit();
+            return response()->json(['message' => 'Buku berhasil dikembalikan.']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Gagal memproses pengembalian.'], 500);
+        }
+    }
+
+    // 3. API untuk mengambil daftar transaksi yang SEDANG DIPINJAM (Untuk dropdown pengembalian)
+    public function activeLoans()
+    {
+        // Ambil transaksi status 'dipinjam', sertakan data user dan buku
+        $transactions = Transaction::with(['user', 'book'])
+            ->where('status', 'dipinjam')
+            ->latest()
+            ->get();
+
+        return response()->json($transactions);
     }
 }
