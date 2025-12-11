@@ -1,97 +1,91 @@
-# 📚 LiberaApp - Sistem Manajemen Perpustakaan Modern
+# Libera - A Modern Library Management System
 
-![Lisensi](https://img.shields.io/badge/license-MIT-blue.svg)
-![PHP](https://img.shields.io/badge/PHP-8.2%2B-blueviolet)
-![Laravel](https://img.shields.io/badge/Laravel-11.x-orange)
-![React](https://img.shields.io/badge/React-19.x-blue)
-![Vite](https://img.shields.io/badge/Vite-5.x-yellow)
+![Libera Banner](https://example.com/libera-banner.png) <!-- Replace with an actual banner image URL if you have one -->
 
-**LiberaApp** adalah aplikasi manajemen perpustakaan berbasis web yang modern, dirancang untuk memberikan kemudahan bagi pengguna dalam meminjam buku dan bagi administrator dalam mengelola koleksi perpustakaan.
+Libera is a comprehensive library management system designed to streamline the process of borrowing and managing books. It features a powerful backend API built with Laravel and a user-friendly frontend web application built with React.
 
-## ✨ Fitur Utama
+## Features
 
-Aplikasi ini memiliki dua peran utama: **Pengguna** dan **Admin**, dengan fitur yang disesuaikan untuk masing-masing peran.
+- **User Management:** Secure user registration and authentication.
+- **Book Catalog:** Easily browse and search for available books.
+- **Borrowing System:** Simple and efficient book borrowing and returning process.
+- **Admin Dashboard:** A powerful dashboard for librarians to manage books, users, and transactions.
+- **Notifications:** Keep users informed about their borrowing activities.
 
-### 👤 Untuk Pengguna
+## Project Structure
 
-- **🔐 Otentikasi Aman:** Sistem registrasi dan login yang aman untuk para pengguna.
-- **📖 Katalog Buku:** Jelajahi koleksi buku yang tersedia dengan mudah.
-- **🔍 Detail Buku:** Lihat informasi lengkap setiap buku, termasuk sinopsis dan ketersediaan.
-- **🚀 Proses Peminjaman:** Pinjam buku favoritmu hanya dengan beberapa klik.
-- **📊 Dasbor Pengguna:** Pantau riwayat peminjaman dan status buku yang sedang dipinjam.
+The project is organized into two main directories:
 
-### 👑 Untuk Admin
+- `/backend`: Contains the Laravel-based backend API.
+- `/frontend`: Contains the React-based frontend application.
 
-- **📈 Dasbor Analitik:** Dapatkan ringkasan statistik perpustakaan, seperti jumlah buku, pengguna, dan transaksi.
-- **📚 Manajemen Buku (CRUD):** Tambah, lihat, edit, dan hapus data buku dengan antarmuka yang intuitif.
-- **👥 Manajemen Pengguna:** Kelola data pengguna yang terdaftar di sistem.
-- **🔄 Manajemen Transaksi:** Pantau dan kelola semua transaksi peminjaman yang terjadi.
-- **⚙️ Pengaturan Profil:** Kelola profil admin dengan mudah.
+## Installation Guide
 
-## 🛠️ Tumpukan Teknologi
-
-- **Backend:** Laravel 11
-- **Frontend:** React 19 (dijalankan dengan Vite)
-- **Database:** SQLite (untuk kemudahan instalasi)
-- **Styling:** CSS Murni
-
-## 🚀 Panduan Instalasi
-
-Ikuti langkah-langkah berikut untuk menjalankan aplikasi ini di lingkungan lokal Anda.
+To get the Libera project up and running on your local machine, please follow the steps below.
 
 ### Prerequisites
 
-- PHP 8.2+
-- Composer
-- Node.js & NPM
+- [PHP](https://www.php.net/downloads.php) >= 8.1
+- [Composer](https://getcomposer.org/)
+- [Node.js](https://nodejs.org/) >= 18.x
+- [NPM](https://www.npmjs.com/)
 
-### 1. Clone Repositori
+### 1. Backend Setup (Laravel)
 
-```bash
-git clone https://github.com/Dinsyyy/Libera.git
-cd Libera
-```
-
-### 2. Setup Backend (API)
-
-Buka terminal baru dan jalankan perintah berikut dari direktori `api`.
+First, set up the backend API:
 
 ```bash
-# Pindah ke direktori api
-cd api
+# Navigate to the backend directory
+cd backend
 
-# Salin file environment
-cp .env.example .env
-
-# Instal dependensi PHP
+# Install PHP dependencies
 composer install
 
-# Buat kunci aplikasi
+# Create a copy of the .env file
+cp .env.example .env
+
+# Generate an application key
 php artisan key:generate
 
-# Jalankan migrasi dan seeding database
-# (Ini akan membuat database SQLite dan mengisinya dengan data awal)
+# Run the database migrations and seed the database
+# (Make sure you have a database configured in your .env file)
 php artisan migrate --seed
+```
 
-# Jalankan server backend
+### 2. Frontend Setup (React)
+
+Next, set up the frontend application:
+
+```bash
+# Navigate to the frontend directory from the root
+cd frontend
+
+# Install JavaScript dependencies
+npm install
+```
+
+## Running the Application
+
+### Backend
+
+To start the Laravel development server, run the following command from the `/backend` directory:
+
+```bash
 php artisan serve
 ```
 
-Server API Anda sekarang berjalan di `http://127.0.0.1:8000`.
+The API will be available at `http://127.0.0.1:8000`.
 
-### 3. Setup Frontend (Client)
+### Frontend
 
-Buka terminal **lain** dan jalankan perintah berikut dari direktori `client`.
+To start the React development server, run the following command from the `/frontend` directory:
 
 ```bash
-# Pindah ke direktori client
-cd client
-
-# Instal dependensi JavaScript
-npm install
-
-# Jalankan server pengembangan frontend
 npm run dev
 ```
 
-Aplikasi frontend Anda sekarang dapat diakses di `http://localhost:5173`.
+The frontend application will be available at `http://localhost:5173`.
+
+## Contributing
+
+We welcome contributions to the Libera project. Please feel free to fork the repository, make your changes, and submit a pull request.
