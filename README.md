@@ -1,6 +1,5 @@
 # Libera - A Modern Library Management System
 
-![Libera Banner](https://example.com/libera-banner.png) <!-- Replace with an actual banner image URL if you have one -->
 
 Libera is a comprehensive library management system designed to streamline the process of borrowing and managing books. It features a powerful backend API built with Laravel and a user-friendly frontend web application built with React.
 
