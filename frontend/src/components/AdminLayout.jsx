@@ -1,8 +1,9 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
+import { theme } from '../theme'; // Import theme
 
-// (1) Import Ikon
+// Import Ikon
 import { 
   LuLayoutDashboard, 
   LuBook, 
@@ -23,35 +24,34 @@ function AdminLayout() {
 
   return (
     <div style={styles.layout}>
-      {/* ----- SIDEBAR (DESAIN BARU) ----- */}
+      {/* ----- SIDEBAR ----- */}
       <div style={styles.sidebar}>
         <div>
-          <h2 style={styles.sidebarTitle}>Perpustakaan</h2>
+          <h2 style={styles.sidebarTitle}>Libera</h2>
           <nav style={styles.nav}>
-            <StyledNavLink to="/admin/dashboard" style={styles.navLink} activeStyle={styles.navLinkActive}>
+            <StyledNavLink to="/admin/dashboard">
               <LuLayoutDashboard size={20} />
               <span>Dashboard</span>
             </StyledNavLink>
-            <StyledNavLink to="/admin/books" style={styles.navLink} activeStyle={styles.navLinkActive}>
+            <StyledNavLink to="/admin/books">
               <LuBook size={20} />
               <span>Manajemen Buku</span>
             </StyledNavLink>
-            <StyledNavLink to="/admin/users" style={styles.navLink} activeStyle={styles.navLinkActive}>
+            <StyledNavLink to="/admin/users">
               <LuUsers size={20} />
               <span>Manajemen Anggota</span>
             </StyledNavLink>
-            <StyledNavLink to="/admin/transaksi" style={styles.navLink} activeStyle={styles.navLinkActive}>
+            <StyledNavLink to="/admin/transaksi">
               <LuArrowLeftRight size={20} />
               <span>Manajemen Transaksi</span>
             </StyledNavLink>
-            <StyledNavLink to="/admin/pengaturan" style={styles.navLink} activeStyle={styles.navLinkActive}>
+            <StyledNavLink to="/admin/pengaturan">
               <LuSettings size={20} />
               <span>Pengaturan</span>
             </StyledNavLink>
           </nav>
         </div>
         
-        {/* Tombol Keluar di Bawah */}
         <button onClick={handleLogout} style={styles.logoutButton}>
           <LuLogOut size={20} />
           <span>Keluar</span>
@@ -60,10 +60,9 @@ function AdminLayout() {
 
       {/* ----- KONTEN UTAMA ----- */}
       <div style={styles.mainContent}>
-        {/* Header di dalam Konten (sesuai desain baru, header tidak full-width) */}
         <header style={styles.header}>
           <div id="page-title-placeholder">
-            {/* Judul halaman akan muncul di sini nanti */}
+            {/* Judul Halaman dari Outlet */}
           </div>
           <div style={styles.headerProfile}>
             <span>Halo, {user?.name || 'Admin'}</span>
@@ -73,27 +72,27 @@ function AdminLayout() {
           </div>
         </header>
         
-        <div style={styles.contentArea}>
+        <main style={styles.contentArea}>
           <Outlet />
-        </div>
+        </main>
       </div>
     </div>
   );
 }
 
-// (STYLE BARU TOTAL) Sesuai desain baru
+// === STYLES using THEME ===
 const styles = {
   layout: { 
     display: 'flex', 
     minHeight: '100vh', 
-    fontFamily: '"Inter", "Arial", sans-serif', // Font lebih modern
-    backgroundColor: '#F9FAFB', // Latar belakang abu-abu sangat muda
+    fontFamily: theme.typography.fontFamily,
+    backgroundColor: theme.colors.background,
   },
   sidebar: {
     width: '280px',
-    backgroundColor: 'white',
-    borderRight: '1px solid #E5E7EB',
-    padding: '24px',
+    backgroundColor: theme.colors.surface,
+    borderRight: `1px solid ${theme.colors.border}`,
+    padding: theme.spacing.lg,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -101,89 +100,100 @@ const styles = {
   },
   sidebarTitle: { 
     textAlign: 'left', 
-    paddingLeft: '12px',
-    marginBottom: '24px', 
-    fontSize: '22px',
-    fontWeight: 'bold',
-    color: '#111827', // Biru gelap
+    paddingLeft: theme.spacing.md,
+    marginBottom: theme.spacing.xl, 
+    fontSize: theme.typography.h2.fontSize,
+    fontWeight: theme.typography.h2.fontWeight,
+    color: theme.colors.textPrimary,
   },
   nav: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    gap: theme.spacing.sm,
   },
-  navLink: { 
+  navLinkBase: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    color: '#4B5563', // Abu-abu
+    gap: theme.spacing.md,
+    color: theme.colors.textSecondary,
     textDecoration: 'none',
-    padding: '12px',
-    borderRadius: '8px',
-    fontSize: '16px',
+    padding: `${theme.spacing.md} ${theme.spacing.md}`,
+    borderRadius: theme.borderRadius.md,
+    fontSize: theme.typography.body.fontSize,
     fontWeight: '500',
+    transition: 'background-color 0.2s, color 0.2s',
   },
   navLinkActive: { 
-    backgroundColor: '#F3F4F6', // Latar belakang abu-abu muda
-    color: '#111827', // Teks jadi gelap
+    backgroundColor: theme.colors.primary,
+    color: theme.colors.surface,
   },
   logoutButton: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
+    gap: theme.spacing.md,
     width: '100%',
-    padding: '12px',
+    padding: theme.spacing.md,
     backgroundColor: 'transparent',
-    color: '#EF4444', // Merah
+    color: theme.colors.error,
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: theme.borderRadius.md,
     cursor: 'pointer',
-    fontSize: '16px',
+    fontSize: theme.typography.body.fontSize,
     fontWeight: '500',
     textAlign: 'left',
+    transition: 'background-color 0.2s',
   },
   mainContent: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
-    padding: '24px 40px',
+    padding: `${theme.spacing.lg} ${theme.spacing.xxl}`,
   },
   header: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
-    marginBottom: '24px',
+    marginBottom: theme.spacing.xl,
   },
   headerProfile: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    fontSize: '16px',
-    color: '#374151',
+    gap: theme.spacing.md,
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.textPrimary,
   },
   avatar: {
     width: '40px',
     height: '40px',
-    borderRadius: '50%',
-    backgroundColor: '#D1D5DB',
-    color: '#111827',
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.primary,
+    color: theme.colors.surface,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: 'bold',
+    fontSize: theme.typography.h3.fontSize,
   },
   contentArea: {
-    padding: '0px', // Konten halaman akan di-render di sini
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.xl,
+    borderRadius: theme.borderRadius.lg,
+    boxShadow: theme.shadows.md,
   },
 };
 
-// Helper NavLink yang sudah kita perbaiki sebelumnya
-const StyledNavLink = React.forwardRef(({ activeStyle, style, ...props }, ref) => {
+// Custom NavLink component to handle active styles
+const StyledNavLink = React.forwardRef(({ children, ...props }, ref) => {
   return (
     <NavLink 
       ref={ref}
       {...props}
-      style={({ isActive }) => (isActive ? { ...style, ...activeStyle } : style)}
-    />
+      style={({ isActive }) => 
+        isActive 
+          ? {...styles.navLinkBase, ...styles.navLinkActive} 
+          : styles.navLinkBase
+      }
+    >
+      {children}
+    </NavLink>
   );
 });
 

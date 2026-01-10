@@ -1,29 +1,28 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom'; // (1) Import Link
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/useAuth';
-
-// (2) Import Ikon Mata (kita akan gunakan emoji sederhana untuk saat ini)
-// Jika Anda ingin ikon sungguhan, kita bisa install react-icons nanti
+import { theme } from '../theme';
+import { LuEye, LuEyeOff } from 'react-icons/lu';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
-
-  // (3) State baru untuk show/hide password
-  const [showPassword, setShowPassword] = useState(false); 
 
   const handleLogin = async (event) => {
     event.preventDefault();
     setError(null);
+    setLoading(true);
 
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/login', {
-        email: email,
-        password: password,
+        email,
+        password,
       });
 
       login(response.data.user, response.data.token);
@@ -34,7 +33,6 @@ function LoginPage() {
         navigate('/dashboard');
       }
     } catch (err) {
-      // ... (Logika error tetap sama) ...
       console.error('Login Gagal:', err);
       if (err.response && err.response.data) {
         if (err.response.status === 422 && err.response.data.errors) {
@@ -45,110 +43,158 @@ function LoginPage() {
       } else {
         setError('Terjadi kesalahan. Silakan coba lagi.');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.loginBox}>
-        <h2 style={styles.title}>Login ke Akun Anda</h2>
+        <h2 style={styles.title}>Selamat Datang Kembali</h2>
+        <p style={styles.subtitle}>Login untuk mengakses perpustakaan digital Anda.</p>
         
         {error && <p style={styles.error}>{error}</p>}
 
         <form onSubmit={handleLogin}>
           <div style={styles.inputGroup}>
-            {/* (PERUBAHAN 2) Label diubah */}
-            <label htmlFor="email" style={styles.label}>Email</label>
+            <label htmlFor="email" style={styles.label}>Alamat Email</label>
             <input
               type="email"
               id="email"
               style={styles.input}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="anda@email.com"
               required
             />
           </div>
           <div style={styles.inputGroup}>
             <label htmlFor="password" style={styles.label}>Password</label>
-            {/* (PERUBAHAN 4) Input password dibungkus */}
             <div style={styles.passwordContainer}>
               <input
-                // (PERUBAHAN 4) Tipe diubah berdasarkan state
                 type={showPassword ? 'text' : 'password'}
                 id="password"
-                style={styles.inputPassword}
+                style={styles.input}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
                 required
               />
-              {/* (PERUBAHAN 4) Tombol Show/Hide */}
               <span 
                 onClick={() => setShowPassword(!showPassword)} 
                 style={styles.passwordToggle}
+                aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
               >
-                {showPassword ? '🙈' : '👁️'}
+                {showPassword ? <LuEyeOff size={20}/> : <LuEye size={20}/>}
               </span>
             </div>
           </div>
-          <button type="submit" style={styles.button}>
-            Login
+          <div style={styles.forgotPassword}>
+            <Link to="/forgot-password" style={styles.link}>Lupa Password?</Link>
+          </div>
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? 'Memproses...' : 'Login'}
           </button>
         </form>
         
-        {/* (PERUBAHAN 1) Link Login Admin DIHAPUS */}
-        
-        {/* (PERUBAHAN 3 & 5) Link baru ditambahkan */}
-        <div style={styles.linksContainer}>
-          <Link to="/forgot-password" style={styles.link}>Lupa Password?</Link>
-          <Link to="/register" style={styles.link}>Belum punya akun? Daftar</Link>
+        <div style={styles.registerLink}>
+          <p>Belum punya akun? <Link to="/register" style={styles.link}>Daftar di sini</Link></p>
         </div>
       </div>
     </div>
   );
 }
 
-// (PERUBAHAN STYLE) Perbarui objek styles
 const styles = {
-  container: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f4f7f6' },
-  loginBox: { padding: '40px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', width: '400px', textAlign: 'center' },
-  title: { marginBottom: '24px', color: '#333' },
-  inputGroup: { marginBottom: '20px', textAlign: 'left' },
-  label: { display: 'block', marginBottom: '8px', color: '#555' },
-  input: { width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' },
-  button: { width: '100%', padding: '12px', backgroundColor: '#34495e', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' },
-  error: { color: 'red', marginBottom: '16px' },
-  
-  // (STYLE BARU) Untuk password toggle
+  container: { 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    minHeight: '100vh', 
+    backgroundColor: theme.colors.background 
+  },
+  loginBox: { 
+    padding: theme.spacing.xxl, 
+    backgroundColor: theme.colors.surface, 
+    borderRadius: theme.borderRadius.lg, 
+    boxShadow: theme.shadows.lg, 
+    width: '100%',
+    maxWidth: '380px',
+    textAlign: 'center' 
+  },
+  title: { 
+    ...theme.typography.h2,
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.sm,
+  },
+  subtitle: {
+    ...theme.typography.body,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.xl,
+  },
+  inputGroup: { 
+    marginBottom: theme.spacing.lg, 
+    textAlign: 'left' 
+  },
+  label: { 
+    display: 'block', 
+    marginBottom: theme.spacing.sm, 
+    color: theme.colors.textPrimary,
+    fontWeight: '600',
+  },
+  input: { 
+    width: '100%', 
+    padding: `${theme.spacing.md} ${theme.spacing.md}`, 
+    border: `1px solid ${theme.colors.border}`, 
+    borderRadius: theme.borderRadius.md, 
+    boxSizing: 'border-box',
+    fontSize: theme.typography.body.fontSize,
+    transition: 'border-color 0.2s, box-shadow 0.2s',
+  },
   passwordContainer: {
     position: 'relative',
     width: '100%',
   },
-  inputPassword: {
-    width: '100%',
-    padding: '12px 40px 12px 12px', // Beri ruang di kanan untuk ikon
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    boxSizing: 'border-box',
-  },
   passwordToggle: {
     position: 'absolute',
-    right: '10px',
+    right: '12px',
     top: '50%',
     transform: 'translateY(-50%)',
     cursor: 'pointer',
-    fontSize: '18px',
+    color: theme.colors.textSecondary,
   },
-
-  // (STYLE BARU) Untuk link daftar & lupa password
-  linksContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginTop: '20px',
+  forgotPassword: {
+    textAlign: 'right',
+    marginBottom: theme.spacing.lg,
+  },
+  button: { 
+    width: '100%', 
+    padding: theme.spacing.md, 
+    backgroundColor: theme.colors.primary, 
+    color: theme.colors.surface, 
+    border: 'none', 
+    borderRadius: theme.borderRadius.md, 
+    cursor: 'pointer', 
+    fontSize: theme.typography.body.fontSize,
+    fontWeight: 'bold',
+    transition: 'background-color 0.2s',
+  },
+  error: { 
+    color: theme.colors.error, 
+    marginBottom: theme.spacing.md,
+    backgroundColor: '#FEE2E2',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+  },
+  registerLink: {
+    marginTop: theme.spacing.xl,
+    color: theme.colors.textSecondary,
   },
   link: {
-    color: '#34495e',
+    color: theme.colors.primary,
     textDecoration: 'none',
-    fontSize: '14px',
+    fontWeight: '600',
   }
 };
 

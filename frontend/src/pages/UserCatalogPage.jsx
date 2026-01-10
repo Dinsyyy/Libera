@@ -2,35 +2,35 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axiosInstance';
 import { Link } from 'react-router-dom';
 import BookCover from '../components/BookCover';
+import { theme } from '../theme';
+import { LuSearch } from 'react-icons/lu';
 
 function UserCatalogPage() {
-  // Definisi State (Hanya boleh ada satu kali)
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true); 
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('');
+  const [allCategories, setAllCategories] = useState([]);
 
   useEffect(() => {
     fetchBooks();
   }, []);
 
   const fetchBooks = async () => {
-      try {
-        const response = await api.get('/books');
-        
-        // LOG DEBUGGING (Cek di Console Browser)
-        console.log("Response API:", response);
-        console.log("Data Buku:", response.data.data || response.data);
+    try {
+      const response = await api.get('/books');
+      const bookData = response.data.data || response.data;
+      setBooks(bookData);
+      
+      const uniqueCategories = [...new Set(bookData.map(b => b.category).filter(Boolean))];
+      setAllCategories(uniqueCategories);
 
-        setBooks(response.data.data || response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error Fetching:", err);
-        // Tampilkan alert biar Anda tahu kalau error
-        alert("Gagal mengambil data buku: " + err.message); 
-        setLoading(false);
-      }
-    };
+      setLoading(false);
+    } catch (err) {
+      console.error("Error Fetching:", err);
+      setLoading(false);
+    }
+  };
 
   const filteredBooks = books.filter((book) => {
     const matchSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -41,28 +41,31 @@ function UserCatalogPage() {
 
   return (
     <div>
-      <h1 style={styles.title}>Katalog Buku</h1>
+      <div style={styles.header}>
+        <h1 style={styles.title}>Katalog Buku</h1>
+        <p style={styles.subtitle}>Temukan petualangan literasi Anda berikutnya.</p>
+      </div>
 
       <div style={styles.filterBar}>
-        <input 
-          type="text" 
-          placeholder="Cari judul atau penulis..." 
-          style={styles.searchInput}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div style={styles.searchContainer}>
+          <LuSearch style={styles.searchIcon} />
+          <input 
+            type="text" 
+            placeholder="Cari berdasarkan judul atau penulis..." 
+            style={styles.searchInput}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         <select 
           style={styles.categorySelect}
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
           <option value="">Semua Kategori</option>
-          <option value="Fiksi">Fiksi</option>
-          <option value="Sains">Sains</option>
-          <option value="Teknologi">Teknologi</option>
-          <option value="Sejarah">Sejarah</option>
-          <option value="Bisnis">Bisnis</option>
-          <option value="Lainnya">Lainnya</option>
+          {allCategories.map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
         </select>
       </div>
 
@@ -74,15 +77,20 @@ function UserCatalogPage() {
                 <div style={styles.card}>
                   <BookCover url={book.cover_image_url} title={book.title} style={styles.cover} />
                   <div style={styles.info}>
-                    <span style={styles.badge}>{book.category || 'Umum'}</span>
+                    <span style={{...styles.badge, ...styles.categoryBadge(book.category)}}>{book.category || 'Umum'}</span>
                     <h3 style={styles.bookTitle}>{book.title}</h3>
-                    <p style={styles.author}>{book.author}</p>
+                    <p style={styles.author}>oleh {book.author}</p>
+                  </div>
+                  <div style={styles.footer}>
+                     <span style={book.stock > 0 ? styles.stockAvailable : styles.stockEmpty}>
+                        {book.stock > 0 ? `Tersedia: ${book.stock}` : 'Stok Habis'}
+                     </span>
                   </div>
                 </div>
               </Link>
             ))
           ) : (
-            <p>Tidak ada buku yang ditemukan.</p>
+            <p style={styles.noBooks}>Tidak ada buku yang cocok dengan pencarian Anda.</p>
           )}
         </div>
       )}
@@ -90,19 +98,104 @@ function UserCatalogPage() {
   );
 }
 
+const categoryColors = {
+  'Fiksi': '#3B82F6',
+  'Teknologi': '#10B981',
+  'Sains': '#8B5CF6',
+  'Sejarah': '#F59E0B',
+  'Bisnis': '#D946EF',
+  'Default': '#6B7280',
+};
+
 const styles = {
-  title: { marginBottom: '20px', color: '#111827' },
-  filterBar: { display: 'flex', gap: '10px', marginBottom: '20px' },
-  searchInput: { flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' },
-  categorySelect: { padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' },
-  bookGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '20px' },
+  header: {
+    marginBottom: theme.spacing.xl,
+  },
+  title: { ...theme.typography.h1, color: theme.colors.textPrimary, marginBottom: theme.spacing.sm },
+  subtitle: { ...theme.typography.body, color: theme.colors.textSecondary, marginTop: 0 },
+  filterBar: { display: 'flex', flexWrap: 'wrap', gap: theme.spacing.md, marginBottom: theme.spacing.xl, alignItems: 'center' },
+  searchContainer: {
+    flex: 1,
+    minWidth: '250px',
+    position: 'relative',
+  },
+  searchIcon: {
+    position: 'absolute',
+    left: theme.spacing.md,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    color: theme.colors.textSecondary,
+  },
+  searchInput: { 
+    width: '100%', 
+    padding: `${theme.spacing.md} ${theme.spacing.md} ${theme.spacing.md} 40px`,
+    borderRadius: theme.borderRadius.md, 
+    border: `1px solid ${theme.colors.border}`,
+    fontSize: theme.typography.body.fontSize,
+  },
+  categorySelect: { 
+    width: '200px',
+    padding: theme.spacing.md, 
+    borderRadius: theme.borderRadius.md, 
+    border: `1px solid ${theme.colors.border}`,
+    fontSize: theme.typography.body.fontSize,
+    backgroundColor: theme.colors.surface,
+  },
+  bookGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: theme.spacing.xl },
   link: { textDecoration: 'none', color: 'inherit' },
-  card: { backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', overflow: 'hidden', height: '100%' },
-  cover: { width: '100%', height: '240px', objectFit: 'cover' },
-  info: { padding: '12px' },
-  badge: { fontSize: '10px', backgroundColor: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 'bold', color: '#6b7280' },
-  bookTitle: { fontSize: '15px', fontWeight: 'bold', margin: '5px 0', lineHeight: '1.3' },
-  author: { fontSize: '13px', color: '#6b7280' }
+  card: { 
+    backgroundColor: theme.colors.surface, 
+    borderRadius: theme.borderRadius.lg, 
+    boxShadow: theme.shadows.sm, 
+    overflow: 'hidden', 
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'transform 0.2s, box-shadow 0.2s',
+  },
+  cover: { width: '100%', height: '280px', objectFit: 'cover' },
+  info: { 
+    padding: theme.spacing.md,
+    flex: '1',
+  },
+  badge: { 
+    ...theme.typography.caption,
+    padding: `${theme.spacing.xs} ${theme.spacing.sm}`, 
+    borderRadius: theme.borderRadius.sm, 
+    textTransform: 'uppercase', 
+    fontWeight: 'bold', 
+  },
+  categoryBadge: (category) => ({
+    backgroundColor: categoryColors[category] || categoryColors['Default'],
+    color: theme.colors.surface,
+  }),
+  bookTitle: { 
+    ...theme.typography.h3,
+    fontSize: '18px',
+    margin: `${theme.spacing.sm} 0`, 
+    lineHeight: '1.4',
+    color: theme.colors.textPrimary,
+  },
+  author: { ...theme.typography.caption, color: theme.colors.textSecondary, margin: 0 },
+  footer: {
+    padding: `0 ${theme.spacing.md} ${theme.spacing.md}`,
+  },
+  stockAvailable: {
+    ...theme.typography.caption,
+    color: theme.colors.success,
+    fontWeight: '600',
+  },
+  stockEmpty: {
+    ...theme.typography.caption,
+    color: theme.colors.error,
+    fontWeight: '600',
+  },
+  noBooks: {
+    ...theme.typography.body,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    padding: theme.spacing.xxl,
+  }
 };
 
 export default UserCatalogPage;
