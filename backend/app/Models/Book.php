@@ -23,6 +23,9 @@ class Book extends Model
         'stock',
         'synopsis',
         'cover_image_url',
+        'total_pages',
+        'average_rating',
+        'total_reviews',
     ];
 
     /**
@@ -32,5 +35,23 @@ class Book extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(BorrowTransaction::class);
+    }
+
+    /**
+     * Mendefinisikan relasi: Satu Buku (Book) bisa memiliki
+     * banyak Progres Membaca (ReadingProgress).
+     */
+    public function readingProgress(): HasMany
+    {
+        return $this->hasMany(ReadingProgress::class);
+    }
+
+    /**
+     * Mendefinisikan relasi: Satu Buku (Book) bisa memiliki
+     * banyak Ulasan (Review).
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 }

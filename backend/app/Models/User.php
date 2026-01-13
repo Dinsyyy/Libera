@@ -55,4 +55,28 @@ class User extends Authenticatable
     {
         return $this->hasMany(BorrowTransaction::class);
     }
+
+    /**
+     * Relasi ke Progres Membaca
+     */
+    public function readingProgress(): HasMany
+    {
+        return $this->hasMany(ReadingProgress::class);
+    }
+
+    /**
+     * Relasi ke Ulasan Buku
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Relasi ke Sumbangan Buku
+     */
+    public function donations(): HasMany
+    {
+        return $this->hasMany(Donation::class);
+    }
 }

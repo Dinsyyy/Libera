@@ -16,6 +16,10 @@ import AdminUsersPage from './pages/AdminUsersPage';
 import AdminSettingsPage from './pages/AdminSettingsPage';
 import AdminTransactionsPage from './pages/AdminTransactionsPage';
 import UserSettingsPage from './pages/UserSettingsPage';
+import UserReadingProgressPage from './pages/UserReadingProgressPage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import UserDonationsPage from './pages/UserDonationsPage';
+import UserBorrowedBooksPage from './pages/UserBorrowedBooksPage';
 
 // (1) Import halaman baru
 import RegisterPage from './pages/RegisterPage';
@@ -39,6 +43,10 @@ function App() {
           <Route path="/books/:id" element={<BookDetailPage />} />
           <Route path="/borrow/success" element={<BorrowSuccessPage />} />
           <Route path="/settings" element={<UserSettingsPage />} />
+          <Route path="/my-reading-progress" element={<UserReadingProgressPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/my-donations" element={<UserDonationsPage />} />
+          <Route path="/my-borrowed-books" element={<UserBorrowedBooksPage />} />
         </Route>
       </Route>
 

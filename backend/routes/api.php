@@ -8,6 +8,9 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\PublicBookController;
 use App\Http\Controllers\Api\TransactionController;
+use App\Http\Controllers\Api\ReadingProgressController;
+use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\DonationController;
 use App\Http\Controllers\Api\User\UserProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -31,11 +34,28 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/books/{id}/borrow', [TransactionController::class, 'borrowBook']);
 
     Route::get('/my-transactions', [TransactionController::class, 'myTransactions']);
+    Route::post('/my-transactions/{id}/return', [TransactionController::class, 'returnBook']);
+
+    // Reading Progress Routes
+    Route::post('/reading-progress', [ReadingProgressController::class, 'store']);
+    Route::get('/my-reading-progress', [ReadingProgressController::class, 'index']);
+    Route::get('/reading-progress/{book_id}', [ReadingProgressController::class, 'show']);
+    Route::get('/leaderboard', [ReadingProgressController::class, 'leaderboard']);
+
+    // Review Routes
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::get('/books/{book_id}/reviews', [ReviewController::class, 'index']);
+
+    // Donation Routes
+    Route::post('/my-donations', [DonationController::class, 'store']);
+    Route::get('/my-donations', [DonationController::class, 'index']);
 
     Route::get('/user/notifications', [App\Http\Controllers\Api\User\NotificationController::class, 'index']);
     Route::post('/user/notifications/read', [App\Http\Controllers\Api\User\NotificationController::class, 'markAsRead']);
     Route::get('/user/home', [App\Http\Controllers\Api\User\UserDashboardController::class, 'index']);
     Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+
+        
 
         Route::get('/dashboard-stats', [AdminDashboardController::class, 'getStats']);
         Route::post('/books', [AdminBookController::class, 'store']);

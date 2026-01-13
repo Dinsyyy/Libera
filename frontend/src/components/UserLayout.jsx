@@ -18,6 +18,9 @@ function UserLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
   const notifRef = useRef(null);
 
+  const [isMoreDropdownOpen, setIsMoreDropdownOpen] = useState(false);
+  const moreDropdownRef = useRef(null);
+
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 60000);
@@ -54,6 +57,9 @@ function UserLayout() {
       if (notifRef.current && !notifRef.current.contains(event.target)) {
         setNotifOpen(false);
       }
+      if (moreDropdownRef.current && !moreDropdownRef.current.contains(event.target)) {
+        setIsMoreDropdownOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -64,9 +70,16 @@ function UserLayout() {
     navigate('/');
   };
 
-  const navLinks = [
+  const primaryNavLinks = [
     { path: '/dashboard', label: 'Beranda' },
     { path: '/catalog', label: 'Cari Buku' },
+  ];
+
+  const moreNavLinks = [
+    { path: '/my-borrowed-books', label: 'Buku Dipinjam' },
+    { path: '/my-reading-progress', label: 'Progres Membaca' },
+    { path: '/leaderboard', label: 'Papan Peringkat' },
+    { path: '/my-donations', label: 'Sumbangkan Buku' },
   ];
 
   const getPhotoUrl = (path) => {
@@ -83,7 +96,7 @@ function UserLayout() {
           </div>
 
           <nav style={styles.navMenu}>
-            {navLinks.map((link) => (
+            {primaryNavLinks.map((link) => (
               <Link 
                 key={link.path} 
                 to={link.path} 
@@ -92,6 +105,28 @@ function UserLayout() {
                 {link.label}
               </Link>
             ))}
+            <div style={{ position: 'relative' }} ref={moreDropdownRef}>
+              <button 
+                style={{...styles.navLink, ...styles.moreDropdownButton, color: isMoreDropdownOpen ? theme.colors.primary : theme.colors.textSecondary}} 
+                onClick={() => setIsMoreDropdownOpen(!isMoreDropdownOpen)}
+              >
+                Lainnya
+              </button>
+              {isMoreDropdownOpen && (
+                <div style={styles.moreDropdownMenu}>
+                  {moreNavLinks.map((link) => (
+                    <Link 
+                      key={link.path} 
+                      to={link.path} 
+                      style={styles.moreDropdownItem}
+                      onClick={() => setIsMoreDropdownOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
 
           <div style={styles.rightArea}>
@@ -219,6 +254,35 @@ const styles = {
     fontSize: '16px', 
     borderBottom: `2px solid ${theme.colors.primary}`, 
     padding: `${theme.spacing.sm} 0`
+  },
+  moreDropdownButton: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontWeight: '600', 
+    fontSize: '16px', 
+    padding: `${theme.spacing.sm} 0`,
+    transition: 'color 0.2s',
+  },
+  moreDropdownMenu: {
+    position: 'absolute',
+    top: '100%',
+    left: '0',
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    boxShadow: theme.shadows.lg,
+    border: `1px solid ${theme.colors.border}`,
+    overflow: 'hidden',
+    minWidth: '180px',
+    zIndex: 100,
+  },
+  moreDropdownItem: {
+    display: 'block',
+    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+    textDecoration: 'none',
+    color: theme.colors.textPrimary,
+    fontSize: '14px',
+    transition: 'background-color 0.2s',
   },
   rightArea: { display: 'flex', alignItems: 'center', gap: theme.spacing.md },
   iconButton: { 

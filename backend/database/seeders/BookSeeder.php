@@ -582,7 +582,67 @@ class BookSeeder extends Seeder
                 'cover_image_url' => 'https://covers.openlibrary.org/b/isbn/9786020382210-L.jpg',
                 'synopsis' => 'Pendekatan yang waras demi menjalani hidup yang baik.',
             ],
+            [
+                'title' => 'Filosofi Teras: Filosofi Yunani-Romawi Kuno untuk Mental Tangguh Masa Kini',
+                'author' => 'Henry Manampiring',
+                'category' => 'Pengembangan Diri',
+                'publisher' => 'Penerbit Buku Kompas',
+                'publication_year' => '2018',
+                'isbn' => '9786024125188',
+                'stock' => 10,
+                'cover_image_url' => 'https://covers.openlibrary.org/b/isbn/9786024125189-L.jpg',
+                'synopsis' => 'Panduan praktis untuk menerapkan filosofi Stoa dalam kehidupan modern agar mental lebih tangguh dan bahagia.',
+            ],
+            [
+                'title' => 'Berani Tidak Disukai',
+                'author' => 'Ichiro Kishimi & Fumitake Koga',
+                'category' => 'Pengembangan Diri',
+                'publisher' => 'Gramedia Pustaka Utama',
+                'publication_year' => '2013',
+                'isbn' => '9786020309996',
+                'stock' => 8,
+                'cover_image_url' => 'https://covers.openlibrary.org/b/isbn/9786020309996-L.jpg',
+                'synopsis' => 'Sebuah buku yang mengupas teori psikologi Alfred Adler dan bagaimana kita bisa menjadi bebas dari harapan orang lain.',
+            ],
+            [
+                'title' => 'Man\'s Search for Meaning',
+                'author' => 'Viktor Frankl',
+                'category' => 'Pengembangan Diri',
+                'publisher' => 'Beacon Press',
+                'publication_year' => '1946',
+                'isbn' => '9780807014295',
+                'stock' => 7,
+                'cover_image_url' => 'https://covers.openlibrary.org/b/isbn/9780807014295-L.jpg',
+                'synopsis' => 'Pengalaman mengerikan Frankl di kamp konsentrasi dan teorinya tentang logoterapi.',
+            ],
+            [
+                'title' => 'Gone Girl',
+                'author' => 'Gillian Flynn',
+                'category' => 'Misteri',
+                'publisher' => 'Crown',
+                'publication_year' => '2012',
+                'isbn' => '9780307588373',
+                'stock' => 10,
+                'cover_image_url' => 'https://covers.openlibrary.org/b/isbn/9780307588373-L.jpg',
+                'synopsis' => 'Seorang wanita menghilang pada ulang tahun pernikahannya, meninggalkan suaminya sebagai tersangka utama.',
+            ],
+            [
+                'title' => 'The Silent Patient',
+                'author' => 'Alex Michaelides',
+                'category' => 'Misteri',
+                'publisher' => 'Celadon Books',
+                'publication_year' => '2019',
+                'isbn' => '9781250301697',
+                'stock' => 9,
+                'cover_image_url' => 'https://covers.openlibrary.org/b/isbn/9781250301697-L.jpg',
+                'synopsis' => 'Seorang psikoterapis terobsesi untuk mengungkap kebenaran di balik tindakan seorang seniman terkenal yang menembak suaminya.',
+            ],
         ];
+
+        $books = array_map(function ($book) {
+            $book['total_pages'] = rand(100, 500);
+            return $book;
+        }, $books);
 
         foreach ($books as $book) {
             Book::create($book);
