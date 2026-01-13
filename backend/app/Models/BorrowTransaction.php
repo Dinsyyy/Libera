@@ -19,7 +19,11 @@ class BorrowTransaction extends Model
         'borrow_date',
         'due_date',
         'return_date',
+        'return_date',
         'status',
+        'fine_amount',
+        'fine_paid_at',
+        'fine_waived_at',
     ];
 
     /**

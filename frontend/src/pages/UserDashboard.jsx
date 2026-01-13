@@ -11,7 +11,8 @@ function UserDashboard() {
     reminders: [],
     bookOfTheDay: null,
     trending: [],
-    genreRecommendations: []
+    genreRecommendations: [],
+    latestActivities: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -20,10 +21,11 @@ function UserDashboard() {
       try {
         const response = await api.get('/user/home');
         setData({
-          reminders: response.data.reminders,
-          bookOfTheDay: response.data.book_of_the_day,
-          trending: response.data.trending,
-          genreRecommendations: response.data.genre_recommendations,
+          reminders: response.data?.reminders || [],
+          bookOfTheDay: response.data?.book_of_the_day || null,
+          trending: response.data?.trending || [],
+          genreRecommendations: response.data?.genre_recommendations || [],
+          latestActivities: response.data?.latest_activities || [],
         });
       } catch (err) {
         console.error("Gagal memuat beranda", err);
@@ -82,6 +84,32 @@ function UserDashboard() {
                   </div>
                 </div>
               </Link>
+            </div>
+          )}
+
+          {/* AKTIVITAS TERBARU */}
+          {data.latestActivities.length > 0 && (
+            <div style={styles.activitySection}>
+              <div style={styles.sectionHeader}>
+                <h3 style={styles.sectionTitle}><LuTarget color="#3B82F6" /> Aktivitas Terbaru</h3>
+              </div>
+              <div style={styles.activityList}>
+                {data.latestActivities.map((activity, index) => (
+                  <div key={index} style={styles.activityItem}>
+                    <span style={styles.activityIcon}>
+                      {activity.type === 'borrowed' && <LuBook color="#2563EB" />}
+                      {activity.type === 'returned' && <LuBook color="#10B981" />}
+                      {activity.type === 'reading_progress' && <LuTarget color="#F59E0B" />}
+                      {activity.type === 'review' && <LuStar color="#FFD700" />}
+                      {activity.type === 'donation' && <LuGift color="#6D28D9" />}
+                    </span>
+                    <p style={styles.activityDescription}>{activity.description}</p>
+                    <span style={styles.activityTimestamp}>
+                      {new Date(activity.timestamp).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -156,6 +184,38 @@ const styles = {
   reminderContainer: { backgroundColor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '12px', padding: '15px', marginBottom: '30px' },
   reminderHeader: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' },
   reminderItem: { fontSize: '14px', color: '#7F1D1D', marginBottom: '5px' },
+
+  activitySection: { marginBottom: '60px' }, // Separate style for activity section
+  activityList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+  },
+  activityItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px',
+    backgroundColor: 'white',
+    padding: '15px',
+    borderRadius: '10px',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.03)',
+    border: '1px solid #E5E7EB',
+  },
+  activityIcon: {
+    fontSize: '24px',
+    flexShrink: 0,
+  },
+  activityDescription: {
+    flexGrow: 1,
+    margin: 0,
+    fontSize: '15px',
+    color: '#333',
+  },
+  activityTimestamp: {
+    fontSize: '12px',
+    color: '#6B7280',
+    flexShrink: 0,
+  },
 
   section: { marginBottom: '60px' },
   sectionHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' },

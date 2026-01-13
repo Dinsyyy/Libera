@@ -30,16 +30,33 @@ class BorrowTransactionSeeder extends Seeder
         $borrowedBooks = $books->random(min(5, $books->count())); // Get 5 random books
 
         foreach ($borrowedBooks as $index => $book) {
-            $borrowDate = Carbon::now()->subDays($index);
+            $borrowDate = Carbon::now()->subDays(rand(10, 30)); // Make borrow dates older
             $dueDate = $borrowDate->copy()->addDays(7);
+            $status = ($index % 2 == 0) ? 'dipinjam' : 'dikembalikan';
+            $returnDate = null;
+            $fineAmount = 0;
+            $finePaidAt = null;
+
+            if ($status == 'dikembalikan') {
+                $returnDate = $dueDate->copy()->addDays(rand(0, 10)); // Some returned late
+                if ($returnDate->greaterThan($dueDate)) {
+                    $daysOverdue = $returnDate->diffInDays($dueDate);
+                    $fineAmount = $daysOverdue * 1000; // Rp 1.000 per day
+                    if ($index % 3 == 0) { // Some fines paid
+                        $finePaidAt = $returnDate->copy()->addDays(rand(1, 3));
+                    }
+                }
+            }
 
             BorrowTransaction::create([
                 'user_id' => $user->id,
                 'book_id' => $book->id,
                 'borrow_date' => $borrowDate->toDateString(),
                 'due_date' => $dueDate->toDateString(),
-                'status' => ($index % 2 == 0) ? 'dipinjam' : 'dikembalikan', // Alternate status
-                'return_date' => ($index % 2 != 0) ? $borrowDate->copy()->addDays(rand(1, 6))->toDateString() : null,
+                'status' => $status,
+                'return_date' => $returnDate?->toDateString(),
+                'fine_amount' => $fineAmount,
+                'fine_paid_at' => $finePaidAt?->toDateTimeString(),
             ]);
         }
 

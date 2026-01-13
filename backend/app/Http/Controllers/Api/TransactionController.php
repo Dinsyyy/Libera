@@ -83,14 +83,30 @@ class TransactionController extends Controller
                     ->where('status', 'dipinjam')
                     ->firstOrFail();
 
+                $returnDate = Carbon::now();
+                $fineAmount = 0;
+                $finePerDay = 1000; // Rp 1.000 per day
+
+                // Calculate fine if returned late
+                $dueDate = Carbon::parse($transaction->due_date);
+                if ($returnDate->greaterThan($dueDate)) {
+                    $daysOverdue = $returnDate->diffInDays($dueDate);
+                    $fineAmount = $daysOverdue * $finePerDay;
+                }
+
                 $transaction->update([
-                    'return_date' => Carbon::now(),
+                    'return_date' => $returnDate,
                     'status' => 'dikembalikan',
+                    'fine_amount' => $fineAmount,
+                    'fine_paid_at' => null, // Fine is incurred but not yet paid
                 ]);
                 $transaction->book->increment('stock');
-                $user->notify(new LibraryNotification(
-                    "Terima kasih! Buku '{$transaction->book->title}' telah berhasil dikembalikan."
-                ));
+
+                $notificationMessage = "Terima kasih! Buku '{$transaction->book->title}' telah berhasil dikembalikan.";
+                if ($fineAmount > 0) {
+                    $notificationMessage .= " Anda dikenakan denda sebesar Rp " . number_format($fineAmount, 0, ',', '.');
+                }
+                $user->notify(new LibraryNotification($notificationMessage));
 
                 return $transaction;
             });

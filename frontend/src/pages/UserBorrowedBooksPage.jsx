@@ -2,26 +2,25 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axiosInstance';
 import { Link } from 'react-router-dom';
 import BookCover from '../components/BookCover';
-import { LuBookOpen } from 'react-icons/lu'; // Assuming you have an icon for borrowed books
+import { LuBookOpen, LuRotateCcw } from 'react-icons/lu'; // Assuming you have an icon for borrowed books
 
 function UserBorrowedBooksPage() {
-  const [borrowedBooks, setBorrowedBooks] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchBorrowedBooks();
+    fetchTransactions();
   }, []);
 
-  const fetchBorrowedBooks = async () => {
+  const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/my-transactions'); // This API fetches all transactions, we'll filter active ones
-      const activeLoans = response.data.filter(t => t.status === 'dipinjam');
-      setBorrowedBooks(activeLoans);
+      const response = await api.get('/my-transactions'); // This API fetches all transactions
+      setTransactions(response.data);
       setLoading(false);
     } catch (err) {
-      setError('Gagal memuat daftar buku yang dipinjam.');
+      setError('Gagal memuat daftar transaksi peminjaman.');
       setLoading(false);
       console.error(err);
     }
@@ -31,42 +30,88 @@ function UserBorrowedBooksPage() {
     try {
       await api.post(`/my-transactions/${transactionId}/return`);
       alert('Buku berhasil dikembalikan!');
-      fetchBorrowedBooks(); // Refresh the list
+      fetchTransactions(); // Refresh the list
     } catch (error) {
       console.error('Gagal mengembalikan buku:', error);
-      alert('Gagal mengembalikan buku. Silakan coba lagi.');
+      alert(error.response?.data?.message || 'Gagal mengembalikan buku. Silakan coba lagi.');
     }
   };
+
+  const activeBorrowedBooks = transactions.filter(t => t.status === 'dipinjam');
+  const returnedBooksHistory = transactions.filter(t => t.status === 'dikembalikan');
 
   if (loading) return <p>Memuat daftar buku...</p>;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.heading}><LuBookOpen size={30} style={{marginRight: '10px'}} /> Buku yang Sedang Anda Pinjam</h1>
-      {borrowedBooks.length === 0 ? (
-        <p>Anda tidak sedang meminjam buku apa pun.</p>
-      ) : (
-        <div style={styles.bookGrid}>
-          {borrowedBooks.map((transaction) => (
-            <div key={transaction.id} style={styles.bookCard}>
-              <Link to={`/books/${transaction.book.id}`} style={styles.bookLink}>
-                <BookCover url={transaction.book.cover_image_url} title={transaction.book.title} style={styles.bookCover} />
-              </Link>
-              <div style={styles.bookInfo}>
-                <Link to={`/books/${transaction.book.id}`} style={styles.bookTitleLink}>
-                  <h2 style={styles.bookTitle}>{transaction.book.title}</h2>
+      <h1 style={styles.heading}><LuBookOpen size={30} style={{marginRight: '10px'}} /> Daftar Peminjaman</h1>
+
+      {/* Section: Buku yang Sedang Dipinjam */}
+      <div style={styles.section}>
+        <h2 style={styles.subHeading}>Buku yang Sedang Anda Pinjam</h2>
+        {activeBorrowedBooks.length === 0 ? (
+          <p>Anda tidak sedang meminjam buku apa pun.</p>
+        ) : (
+          <div style={styles.bookGrid}>
+            {activeBorrowedBooks.map((transaction) => (
+              <div key={transaction.id} style={styles.bookCard}>
+                <Link to={`/books/${transaction.book.id}`} style={styles.bookLink}>
+                  <BookCover url={transaction.book.cover_image_url} title={transaction.book.title} style={styles.bookCover} />
                 </Link>
-                <p style={styles.bookAuthor}>{transaction.book.author}</p>
-                <p style={styles.dueDate}>Jatuh tempo: {transaction.due_date}</p>
-                <button onClick={() => handleReturn(transaction.id)} style={styles.returnButton}>
-                  Kembalikan
-                </button>
+                <div style={styles.bookInfo}>
+                  <Link to={`/books/${transaction.book.id}`} style={styles.bookTitleLink}>
+                    <h2 style={styles.bookTitle}>{transaction.book.title}</h2>
+                  </Link>
+                  <p style={styles.bookAuthor}>{transaction.book.author}</p>
+                  <p style={styles.dueDate}>Jatuh tempo: {transaction.due_date}</p>
+                  <button onClick={() => handleReturn(transaction.id)} style={styles.returnButton}>
+                    <LuRotateCcw style={{marginRight: '5px'}} /> Kembalikan
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Section: Riwayat Peminjaman */}
+      <div style={styles.section}>
+        <h2 style={styles.subHeading}>Riwayat Peminjaman (Termasuk Denda)</h2>
+        {returnedBooksHistory.length === 0 ? (
+          <p>Belum ada riwayat peminjaman buku.</p>
+        ) : (
+          <div style={styles.bookGrid}>
+            {returnedBooksHistory.map((transaction) => (
+              <div key={transaction.id} style={styles.bookCard}>
+                <Link to={`/books/${transaction.book.id}`} style={styles.bookLink}>
+                  <BookCover url={transaction.book.cover_image_url} title={transaction.book.title} style={styles.bookCover} />
+                </Link>
+                <div style={styles.bookInfo}>
+                  <Link to={`/books/${transaction.book.id}`} style={styles.bookTitleLink}>
+                    <h2 style={styles.bookTitle}>{transaction.book.title}</h2>
+                  </Link>
+                  <p style={styles.bookAuthor}>{transaction.book.author}</p>
+                  <p style={styles.returnDate}>Dikembalikan: {new Date(transaction.return_date).toLocaleDateString('id-ID')}</p>
+                  
+                  {transaction.fine_amount > 0 && (
+                    <div style={styles.fineInfo}>
+                      <p style={styles.fineAmount}>Denda: Rp {transaction.fine_amount.toLocaleString('id-ID')}</p>
+                      {transaction.fine_paid_at ? (
+                        <p style={styles.fineStatusPaid}>Sudah Dibayar ({new Date(transaction.fine_paid_at).toLocaleDateString('id-ID')})</p>
+                      ) : transaction.fine_waived_at ? (
+                        <p style={styles.fineStatusWaived}>Dihapus</p>
+                      ) : (
+                        <p style={styles.fineStatusUnpaid}>Belum Dibayar</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -87,6 +132,17 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  section: {
+    marginBottom: '40px',
+    borderTop: '1px solid #eee',
+    paddingTop: '20px',
+  },
+  subHeading: {
+    fontSize: '22px',
+    fontWeight: 'bold',
+    marginBottom: '20px',
+    color: '#333',
   },
   bookGrid: {
     display: 'grid',
@@ -139,6 +195,12 @@ const styles = {
     fontWeight: 'bold',
     margin: '0 0 15px 0',
   },
+  returnDate: {
+    fontSize: '14px',
+    color: '#5cb85c',
+    fontWeight: 'bold',
+    margin: '0 0 15px 0',
+  },
   returnButton: {
     padding: '10px 15px',
     fontSize: '14px',
@@ -149,6 +211,34 @@ const styles = {
     cursor: 'pointer',
     marginTop: 'auto', // Push to bottom
     alignSelf: 'flex-start',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  fineInfo: {
+    marginTop: '10px',
+    paddingTop: '10px',
+    borderTop: '1px solid #eee',
+  },
+  fineAmount: {
+    fontSize: '14px',
+    fontWeight: 'bold',
+    color: '#dc3545',
+    margin: '0 0 5px 0',
+  },
+  fineStatusPaid: {
+    fontSize: '13px',
+    color: '#28a745',
+    margin: 0,
+  },
+  fineStatusUnpaid: {
+    fontSize: '13px',
+    color: '#ffc107',
+    margin: 0,
+  },
+  fineStatusWaived: {
+    fontSize: '13px',
+    color: '#6c757d',
+    margin: 0,
   },
 };
 
