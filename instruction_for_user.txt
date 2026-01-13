@@ -1,9 +1,0 @@
-Saya telah menambahkan kebijakan keamanan konten (CSP) melalui middleware di backend Anda. Ini seharusnya mengatasi masalah pemblokiran script dan stylesheet.
-
-Untuk melihat efek perbaikan ini, mohon pastikan Anda telah:
-1.  **Restart server backend Anda** (dengan menjalankan 'php artisan serve' lagi).
-2.  **Restart server frontend Anda** (dengan menjalankan 'npm run dev' atau yang serupa lagi).
-
-Setelah kedua server di-restart, mohon periksa kembali apakah error CSP sudah hilang dan aplikasi berfungsi dengan benar.
-
-Selain itu, apakah Anda ingin saya melanjutkan dengan fitur "Manajemen Denda & Pemutihan" yang tadi kita bicarakan, atau ada hal lain yang ingin Anda kerjakan terlebih dahulu?
