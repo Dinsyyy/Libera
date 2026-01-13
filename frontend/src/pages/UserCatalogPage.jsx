@@ -57,16 +57,23 @@ function UserCatalogPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <select 
-          style={styles.categorySelect}
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          <option value="">Semua Kategori</option>
+        <div style={styles.categoryButtonGroup}>
+          <button 
+            style={category === '' ? styles.categoryButtonActive : styles.categoryButton}
+            onClick={() => setCategory('')}
+          >
+            Semua Kategori
+          </button>
           {allCategories.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
+            <button 
+              key={cat} 
+              style={category === cat ? styles.categoryButtonActive : styles.categoryButton}
+              onClick={() => setCategory(cat)}
+            >
+              {cat}
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
       {loading ? <p>Memuat buku...</p> : (
@@ -113,10 +120,9 @@ const styles = {
   },
   title: { ...theme.typography.h1, color: theme.colors.textPrimary, marginBottom: theme.spacing.sm },
   subtitle: { ...theme.typography.body, color: theme.colors.textSecondary, marginTop: 0 },
-  filterBar: { display: 'flex', flexWrap: 'wrap', gap: theme.spacing.md, marginBottom: theme.spacing.xl, alignItems: 'center' },
+  filterBar: { display: 'flex', flexDirection: 'column', gap: theme.spacing.md, marginBottom: theme.spacing.xl, alignItems: 'stretch' },
   searchContainer: {
-    flex: 1,
-    minWidth: '250px',
+    width: '100%', // Take full width
     position: 'relative',
   },
   searchIcon: {
@@ -133,13 +139,32 @@ const styles = {
     border: `1px solid ${theme.colors.border}`,
     fontSize: theme.typography.body.fontSize,
   },
-  categorySelect: { 
-    width: '200px',
-    padding: theme.spacing.md, 
-    borderRadius: theme.borderRadius.md, 
+  categoryButtonGroup: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: theme.spacing.sm,
+    width: '100%', // Take full width
+    marginTop: theme.spacing.sm, // Add some space from search bar
+  },
+  categoryButton: {
+    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+    borderRadius: theme.borderRadius.md,
     border: `1px solid ${theme.colors.border}`,
-    fontSize: theme.typography.body.fontSize,
     backgroundColor: theme.colors.surface,
+    color: theme.colors.textPrimary,
+    cursor: 'pointer',
+    fontSize: theme.typography.body.fontSize,
+    transition: 'background-color 0.2s, color 0.2s',
+  },
+  categoryButtonActive: {
+    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+    borderRadius: theme.borderRadius.md,
+    border: `1px solid ${theme.colors.primary}`,
+    backgroundColor: theme.colors.primary,
+    color: theme.colors.surface,
+    cursor: 'pointer',
+    fontSize: theme.typography.body.fontSize,
+    fontWeight: 'bold',
   },
   bookGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: theme.spacing.xl },
   link: { textDecoration: 'none', color: 'inherit' },
