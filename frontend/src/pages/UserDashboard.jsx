@@ -3,7 +3,7 @@ import api from '../api/axiosInstance';
 import { useAuth } from '../contexts/useAuth';
 import BookCover from '../components/BookCover';
 import { Link } from 'react-router-dom';
-import { LuCalendarClock, LuFlame, LuSparkles, LuArrowRight, LuBook } from "react-icons/lu";
+import { LuCalendarClock, LuFlame, LuSparkles, LuArrowRight, LuBook, LuTarget, LuStar, LuGift } from "react-icons/lu";
 
 function UserDashboard() {
   const { user } = useAuth();
