@@ -4,12 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use Illuminate\Support\Facades\Cache;
 
 class PublicBookController extends Controller
 {
     public function index()
     {
-        $books = Book::latest()->get();
+        $books = Cache::remember('public_books_catalog', 60, function () {
+            return Book::withCount('reviews')
+                        ->withAvg('reviews', 'rating')
+                        ->latest()
+                        ->get();
+        });
 
         return response()->json([
             'message' => 'List buku berhasil diambil',

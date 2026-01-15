@@ -44,17 +44,21 @@ class UserDashboardController extends Controller
         $targetCategories = ['Fiksi', 'Teknologi', 'Bisnis', 'Pengembangan Diri', 'Misteri', 'Sains', 'Sejarah'];
         $genreRecommendations = [];
 
+        // Fetch all potential books for recommendations in one go
+        $allGenreBooks = Book::withCount('reviews')
+            ->withAvg('reviews', 'rating')
+            ->whereIn('category', $targetCategories)
+            ->whereNotIn('id', $excludedBookIds)
+            ->get()
+            ->shuffle(); // Shuffle once to get random selection
+
         foreach ($targetCategories as $category) {
-            $booksInCategory = Book::where('category', $category)
-                ->whereNotIn('id', $excludedBookIds)
-                ->inRandomOrder()
-                ->take(2) // Get 2 books per category
-                ->get();
+            $booksInCategory = $allGenreBooks->where('category', $category)->take(2);
 
             if ($booksInCategory->isNotEmpty()) {
                 $genreRecommendations[] = [
                     'category' => $category,
-                    'books' => $booksInCategory,
+                    'books' => $booksInCategory->values(), // Reset keys
                 ];
             }
         }
